@@ -50,6 +50,7 @@ _BRAIN_INVOKED_METHODS: tuple[tuple[str, tuple[Any, ...]], ...] = (
         ),
     )),
     ("set_chat_persist_callback", (lambda s, t, u: None, lambda: None)),
+    ("restore_visibility_state", ()),
     # Callback wiring
     ("set_input_callback", (lambda s: None,)),
     ("set_command_callback", (lambda s: None,)),
@@ -103,7 +104,10 @@ def test_console_overlay_accepts_full_adapter_surface(
         if name in {"setup", "teardown"}:
             continue  # these mutate terminal state; skip in unit tests
         method = getattr(overlay, name)
-        method(*args)
+        if name == "restore_visibility_state":
+            method(buddy_visible=True, windows={}, zoom=1.0)
+        else:
+            method(*args)
 
     for name, args in _MODAL_METHODS:
         result = getattr(overlay, name)(*args)
